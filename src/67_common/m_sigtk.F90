@@ -567,8 +567,6 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  integer :: fine_kptrlatt(3,3), band_block(2)
  integer,allocatable :: kshe_mask(:,:,:), krange2ibz(:)
  real(dp) :: params(4)
-
- integer :: returnFunc
 ! *************************************************************************
 
  my_rank = xmpi_comm_rank(comm); nprocs = xmpi_comm_size(comm)

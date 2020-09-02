@@ -736,7 +736,6 @@ subroutine gstate(args_gs,acell,codvsn,cpui,dtfil,dtset,iexit,initialized,&
 &   dtset%lotf_classic,1,1)
  end if
 #endif
-
 !Initialize wavefunctions.
  if(dtset%imgwfstor==1 .and. initialized==1)then
    cg(:,:)=scf_history%cg(:,:,1)

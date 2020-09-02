@@ -2465,6 +2465,8 @@ subroutine distrb2(mband,nband,nkpt,nproc,nsppol,mpi_enreg)
 
  end if ! has_file
 
+ !deallocate(mpi_enreg%my_kpttab)
+ !allocate(mpi_enreg%my_kpttab(8))
  mpi_enreg%my_kpttab(:)=0
  mpi_enreg%my_isppoltab(:)=0
  do iisppol=1,nsppol

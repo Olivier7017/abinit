@@ -284,7 +284,6 @@ subroutine sigtk_kcalc_from_gaps(dtset, ebands, gaps, nkcalc, kcalc, bstart_ks, 
 
  call wrtout(std_out, " Including direct and fundamental KS gap in Sigma_nk")
  ABI_CHECK(maxval(gaps%ierr) == 0, "qprange 0 cannot be used because I cannot find the gap (gap_err !=0)")
-
  nsppol = ebands%nsppol
  val_indeces = get_valence_idx(ebands)
 
@@ -381,7 +380,6 @@ subroutine sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, nkcalc, kcalc, bs
  real(dp),allocatable :: sigma_wtk(:),sigma_kbz(:,:),tmp_kcalc(:,:)
 
 ! *************************************************************************
-
  my_rank = xmpi_comm_rank(comm) !; nprocs = xmpi_comm_size(comm)
  if (my_rank == master) then
    write(std_out, "(a)")" Selecting k-points and bands according to their position wrt band edges (sigma_erange)."
@@ -389,7 +387,7 @@ subroutine sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, nkcalc, kcalc, bs
    call gaps%print(unit=std_out)
  end if
 
- ABI_CHECK(maxval(gaps%ierr) == 0, "erange 0 cannot be used because I cannot find the gap (gap_err !=0)")
+ ABI_CHECK(maxval(gaps%ierr) == 0 .OR. maxval(gaps%ierr) == 1, "erange 0 cannot be used because I cannot find the gap (gap_err !=0)")
 
  if (any(dtset%sigma_ngkpt /= 0)) then
     call wrtout(std_out, sjoin(" Generating initial list of k-points from sigma_nkpt.", ltoa(dtset%sigma_ngkpt)))
@@ -432,8 +430,13 @@ subroutine sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, nkcalc, kcalc, bs
 
  do spin=1,nsppol
    ! Get cmb and vbm with some tolerance
-   vmax = gaps%vb_max(spin) + tol2 * eV_Ha
-   cmin = gaps%cb_min(spin) - tol2 * eV_Ha
+   if (maxval(gaps%ierr) == 0) then
+     vmax = gaps%vb_max(spin) + tol2 * eV_Ha
+     cmin = gaps%cb_min(spin) - tol2 * eV_Ha
+   else if (maxval(gaps%ierr) == 1) then
+     vmax = ebands%fermie + tol2 * eV_Ha
+     cmin = ebands%fermie - tol2 * eV_Ha
+   end if
    do ii=1,tmp_nkpt
      ! Index of k-point in ebands.
      ik = sigmak2ebands(ii)
@@ -445,14 +448,12 @@ subroutine sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, nkcalc, kcalc, bs
           if (ee <= vmax .and. vmax - ee <= dtset%sigma_erange(1)) then
             ib_work(1, ii, spin) = min(ib_work(1, ii, spin), band)
             ib_work(2, ii, spin) = max(ib_work(2, ii, spin), band)
-            !write(std_out, *), "Adding valence band", band, " with ee [eV]: ", ee * Ha_eV
           end if
         end if
         if (dtset%sigma_erange(2) > zero) then
           if (ee >= cmin .and. ee - cmin <= dtset%sigma_erange(2)) then
             ib_work(1, ii, spin) = min(ib_work(1, ii, spin), band)
             ib_work(2, ii, spin) = max(ib_work(2, ii, spin), band)
-            !write(std_out, *)"Adding conduction band", band, " with ee [eV]: ", ee * Ha_eV
           end if
         end if
      end do
@@ -567,6 +568,7 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  integer,allocatable :: kshe_mask(:,:,:), krange2ibz(:)
  real(dp) :: params(4)
 
+ integer :: returnFunc
 ! *************************************************************************
 
  my_rank = xmpi_comm_rank(comm); nprocs = xmpi_comm_size(comm)
@@ -595,10 +597,13 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
 
  ! Compute gaps using input ebands.
  gap_err = get_gaps(ebands, gaps)
- if (gap_err /= 0) then
-   MSG_ERROR("Cannot compute fundamental and direct gap (likely metal).")
+ if (gap_err == 0) then
+    call gaps%print("Gaps from input ebands", unit=std_out)
+ else if (gap_err == 1) then
+    call gaps%print("Cannot compute fundamental and direct gap (likely metal).", unit=std_out)
+ else
+    MSG_ERROR("Cannot compute fundamental and direct gap. You need to add another band for conduction band.")
  end if
- call gaps%print(header="Gaps from input ebands", unit=std_out)
  call gaps%free()
 
  ! Interpolate band energies with star-functions.
@@ -623,11 +628,14 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
 
  ! Compute gaps using fine_ebands.
  gap_err = get_gaps(fine_ebands, fine_gaps)
- if (gap_err /= 0) then
-   MSG_ERROR("Cannot compute fundamental and direct gap (likely metal).")
+ if (gap_err == 0) then
+   call fine_gaps%print(header="Gaps from interpolated eigenvalues", unit=std_out)
+ else if (gap_err == 1) then 
+   call fine_gaps%print("Cannot compute fundamental and direct gap from interpolated eigenvalues (likely metal).", unit=std_out)
+ else
+    MSG_ERROR("Cannot compute fundamental and direct gap. Something went wrong")
  end if
- call fine_gaps%print(header="Gaps from interpolated eigenvalues", unit=std_out)
-
+ 
  ! Build new header with fine k-mesh (note kptrlatt_orig == kptrlatt)
  codvsn="        "
  codvsn(1:min(len_trim(ABINIT_VERSION),8))=ABINIT_VERSION(1:min(len_trim(ABINIT_VERSION),8))
@@ -642,11 +650,17 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  ! Find k-points inside sigma_erange energy window.
  ! Set entry to 1 if (ikpt, spin) is inside the pocket (last index discerns between hole and electron pockets)
  ABI_ICALLOC(kshe_mask, (fine_ebands%nkpt, ebands%nsppol, 2))
-
+ 
  do spin=1,ebands%nsppol
    ! Get CBM and VBM with some tolerance.
-   vmax = fine_gaps%vb_max(spin) + tol2 * eV_Ha
-   cmin = fine_gaps%cb_min(spin) - tol2 * eV_Ha
+   if (gap_err == 0) then
+     vmax = fine_gaps%vb_max(spin) + tol2 * eV_Ha
+     cmin = fine_gaps%cb_min(spin) - tol2 * eV_Ha
+   else if (gap_err == 1) then
+     vmax = ebands%fermie + tol2 * eV_Ha
+     cmin = ebands%fermie - tol2 * eV_Ha
+   end if
+
    do ikf_ibz=1,fine_ebands%nkpt
      do band=1,ebands%mband
        ee = fine_ebands%eig(band, ikf_ibz, spin)
@@ -741,7 +755,6 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  call fine_hdr%free()
 
 end subroutine sigtk_kpts_in_erange
-!!***
 
 end module m_sigtk
 !!***

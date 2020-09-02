@@ -523,7 +523,6 @@ subroutine kpgio(ecut,exchn2n3d,gmet,istwfk,kg,kptns,mkmem,nband,nkpt,&
  real(dp) :: kpoint(3)
 
 ! *************************************************************************
-
 !Define me
  me=mpi_enreg%me_kpt
 
@@ -565,7 +564,6 @@ subroutine kpgio(ecut,exchn2n3d,gmet,istwfk,kg,kptns,mkmem,nband,nkpt,&
    kpoint(:)=kptns(:,ikpt)
    istwf_k=istwfk(ikpt)
    call kpgsph(ecut,exchn2n3d,gmet,ikg,ikpt,istwf_k,kg,kpoint,mkmem,mpi_enreg,mpw,npw1)
-
    test_npw=.true.
    if (xmpi_paral==1)then
      if (mode_paral=='PERS')then

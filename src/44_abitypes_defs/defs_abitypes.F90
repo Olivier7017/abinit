@@ -251,7 +251,7 @@ module defs_abitypes
    integer, allocatable :: my_kgtab(:,:)
     ! (mpw, mkmem)
     ! Indexes of kg treated by current proc
-    ! i.e. mapping betwee the G-vector stored by this proc and the list of G-vectors
+    ! i.e. mapping between the G-vector stored by this proc and the list of G-vectors
     ! one would have in the sequential version. See kpgsph in m_fftcore.
 
    integer, allocatable :: my_kpttab(:)

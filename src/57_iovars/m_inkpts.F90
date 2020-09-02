@@ -171,7 +171,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
 ! *************************************************************************
 
  call timab(192,1,tsec)
-
+ 
  my_rank = xmpi_comm_rank(comm); nprocs = xmpi_comm_size(comm)
 
  ! Compute the maximum size of arrays intarr and dprarr
@@ -249,6 +249,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
    end if
 
  else if (kptopt == 0 .and. getkerange_filepath /= ABI_NOFILE) then
+   
    ! Initialize kpts from kerange_path file.
    ABI_MALLOC(krange2ibz, (nkpt))
    if (my_rank == master) then
@@ -259,6 +260,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
      ! TODO Add code for consistency check
      !kptopt, nsym, occopt
      !ABI_CHECK(nkpt == hdr%nkpt, "nkpt from kerange != nkpt")
+     
      NCF_CHECK(nf90_get_var(ncid, nctk_idname(ncid, "krange2ibz"), krange2ibz))
      NCF_CHECK(nf90_close(ncid))
 #else
@@ -278,8 +280,9 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
    wtk = hdr%wtk(krange2ibz(:))
    call hdr%free()
    kptnrm = one
-   ABI_FREE(krange2ibz)
 
+   ABI_FREE(krange2ibz)
+   
  else if (kptopt < 0) then
    ! Band structure calculation
    nsegment=abs(kptopt)
@@ -355,7 +358,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
      'In this case, please check your input file.'
      MSG_ERROR(msg)
    end if
-
+   
    if (nkpt/=0) then
      ! The array kpt has the right dimension and we can generate the k-path
      call intagm(dprarr,intarr,jdtset,marr,3*nsegment+3,string(1:lenstr),'kptbounds',tread,'DPR')
@@ -533,6 +536,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
  ABI_DEALLOCATE(dprarr)
 
  call timab(192,2,tsec)
+
 
 end subroutine inkpts
 !!***

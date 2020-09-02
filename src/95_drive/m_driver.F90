@@ -211,7 +211,6 @@ subroutine driver(codvsn,cpui,dtsets,filnam,filstat,&
  type(results_out_type),pointer :: results_out_all(:)
 
 !******************************************************************
-
  DBG_ENTER("COLL")
 
  call timab(640,1,tsec)
@@ -248,6 +247,7 @@ subroutine driver(codvsn,cpui,dtsets,filnam,filstat,&
 
  call timab(641,2,tsec)
 
+
 !*********************************************************************
 !Big loop on datasets
 
@@ -267,7 +267,6 @@ subroutine driver(codvsn,cpui,dtsets,filnam,filstat,&
    else
      jdtset_status=0
    end if
-
 !  Copy input variables into a local dtset.
    dtset = dtsets(idtset)%copy()
 

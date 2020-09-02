@@ -290,7 +290,6 @@ subroutine gstateimg(acell_img,amu_img,codvsn,cpui,dtfil,dtset,etotal_img,fcart_
 
  call timab(700,1,tsec)
  call timab(703,3,tsec)
-
 !Arguments check
  if (dtset%nimage>1) then
    if ((.not.present(filnam)).or.(.not.present(filnam)).or.(.not.present(idtset)).or.&

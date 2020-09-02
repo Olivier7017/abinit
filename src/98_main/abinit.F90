@@ -281,9 +281,7 @@ program abinit
 
  ABI_MALLOC(mpi_enregs, (0:max(1,ndtset)))
  call mpi_setup(dtsets,filnam,lenstr,mpi_enregs,ndtset,ndtset_alloc,string)
-
  call memory_eval(dtsets,ab_out,mpi_enregs,ndtset,ndtset_alloc,npsp,pspheads)
-
 !------------------------------------------------------------------------------
 
 !12) Echo input data to output file and log file

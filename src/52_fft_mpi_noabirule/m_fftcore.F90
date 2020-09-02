@@ -4007,8 +4007,6 @@ end subroutine indfftrisc
 !!      xmpi_sum,xmpi_sum_master
 !!
 !! SOURCE
-
-
 subroutine kpgsph(ecut,exchn2n3d,gmet,ikg,ikpt,istwf_k,kg,kpt,mkmem,mpi_enreg,mpw,npw)
 
 !Arguments ------------------------------------

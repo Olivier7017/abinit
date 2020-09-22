@@ -2333,7 +2333,7 @@ type(sigmaph_t) function sigmaph_new(dtset, ecut, cryst, ebands, ifc, dtfil, com
  else
 
    if (any(dtset%sigma_erange > zero)) then
-     if (gap_err /= 0) MSG_WARNING("Will use kerange capability for metal. It is an experimental feature")
+     if (gap_err == 1) MSG_WARNING("Will use kerange capability for metal. It is an experimental feature")
      call sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, new%nkcalc, new%kcalc, new%bstart_ks, new%nbcalc_ks, comm)
 
    else

@@ -388,6 +388,7 @@ subroutine sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, nkcalc, kcalc, bs
  end if
 
  ABI_CHECK(maxval(gaps%ierr) == 0 .OR. maxval(gaps%ierr) == 1, "erange 0 cannot be used because I cannot find the gap (gap_err !=0)")
+ if (maxval(gaps%ierr) == 1) MSG_WARNING("Will use kerange capability for metal. It is an experimental feature")
 
  if (any(dtset%sigma_ngkpt /= 0)) then
     call wrtout(std_out, sjoin(" Generating initial list of k-points from sigma_nkpt.", ltoa(dtset%sigma_ngkpt)))

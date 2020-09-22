@@ -1186,6 +1186,7 @@ subroutine sigmaph(wfk0_path, dtfil, ngfft, ngfftf, dtset, cryst, ebands, dvdb, 
      ! ==========================================
      call cwtime(cpu_qloop, wall_qloop, gflops_qloop, "start")
      ignore_kq = 0; ignore_ibsum_kq = 0
+
      do imyq=1,sigma%my_nqibz_k
        iq_ibz = sigma%myq2ibz_k(imyq)
        qpt = sigma%qibz_k(:, iq_ibz)
@@ -1538,7 +1539,6 @@ subroutine sigmaph(wfk0_path, dtfil, ngfft, ngfftf, dtset, cryst, ebands, dvdb, 
        ! Sum over bands
        ! ==============
        call timab(1903, 1, tsec)
-
        do ibsum_kq=sigma%my_bsum_start, sigma%my_bsum_stop
 
          ! This can happen if we have loaded the wavefunctions inside the energy range.
@@ -2226,7 +2226,6 @@ type(sigmaph_t) function sigmaph_new(dtset, ecut, cryst, ebands, ifc, dtfil, com
  logical :: reorder
  integer,allocatable :: dims(:)
  logical,allocatable :: periods(:), keepdim(:)
-
 #endif
 
 ! *************************************************************************
@@ -2363,7 +2362,7 @@ type(sigmaph_t) function sigmaph_new(dtset, ecut, cryst, ebands, ifc, dtfil, com
 
  end if ! nkptgw /= 0
 
-  call gaps%free()
+ call gaps%free()
 
  ! The k-point and the symmetries relating the BZ k-point to the IBZ.
  ABI_MALLOC(new%kcalc2ibz, (new%nkcalc, 6))

@@ -249,6 +249,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
    end if
 
  else if (kptopt == 0 .and. getkerange_filepath /= ABI_NOFILE) then
+   
    ! Initialize kpts from kerange_path file.
    ABI_MALLOC(krange2ibz, (nkpt))
    if (my_rank == master) then
@@ -259,6 +260,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
      ! TODO Add code for consistency check
      !kptopt, nsym, occopt
      !ABI_CHECK(nkpt == hdr%nkpt, "nkpt from kerange != nkpt")
+     
      NCF_CHECK(nf90_get_var(ncid, nctk_idname(ncid, "krange2ibz"), krange2ibz))
      NCF_CHECK(nf90_close(ncid))
 #else
@@ -278,6 +280,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
    wtk = hdr%wtk(krange2ibz(:))
    call hdr%free()
    kptnrm = one
+
    ABI_FREE(krange2ibz)
    
  else if (kptopt < 0) then
@@ -533,6 +536,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
  ABI_DEALLOCATE(dprarr)
 
  call timab(192,2,tsec)
+
 
 end subroutine inkpts
 !!***

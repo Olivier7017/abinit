@@ -787,9 +787,6 @@ subroutine transport_rta_compute_mobility(self, cryst, dtset, comm)
          kT = self%kTmesh(itemp)
          mu_e = self%transport_mu_e(itemp)
          self%nh(itemp) = self%nh(itemp) + wtk*(1-occ_fd(eig_nk,kT,mu_e))*max_occ
-         !Start debug
-         write(std_out,*) "We have nh=", self%nh(itemp)
-         !End debug
        end do
      end do
      ! number of electrons
@@ -799,9 +796,6 @@ subroutine transport_rta_compute_mobility(self, cryst, dtset, comm)
          kT = self%kTmesh(itemp)
          mu_e = self%transport_mu_e(itemp)
          self%ne(itemp) = self%ne(itemp) + wtk*occ_fd(eig_nk,kT,mu_e)*max_occ
-         !Start debug
-         write(std_out,*) "We have ne=", self%ne(itemp)
-         !End debug
        end do
      end do
    end do
@@ -843,10 +837,6 @@ subroutine transport_rta_compute_mobility(self, cryst, dtset, comm)
    end do !kpt
  end do !spin
 
- !Start debug
- write(std_out, *) "Electron mobility at ntemp-1", self%mobility_mu(1,:,:,:,self%ntemp-1)
- write(std_out, *) "Hole mobility at ntemp-1:", self%mobility_mu(2,:,:,:,self%ntemp-1)
- !End debug
  ! Scale by the carrier concentration
  do itemp=1,self%ntemp
    ! for electrons

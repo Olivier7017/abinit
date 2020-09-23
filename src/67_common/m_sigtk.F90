@@ -634,12 +634,12 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  gap_err = get_gaps(fine_ebands, fine_gaps)
  if (gap_err == 0) then
    call fine_gaps%print(header="Gaps from interpolated eigenvalues", unit=std_out)
- else if (gap_err == 1) then 
+ else if (gap_err == 1) then
    call fine_gaps%print("Cannot compute fundamental and direct gap from interpolated eigenvalues (likely metal).", unit=std_out)
  else
     MSG_ERROR("Cannot compute fundamental and direct gap. Something went wrong")
  end if
- 
+
  ! Build new header with fine k-mesh (note kptrlatt_orig == kptrlatt)
  codvsn="        "
  codvsn(1:min(len_trim(ABINIT_VERSION),8))=ABINIT_VERSION(1:min(len_trim(ABINIT_VERSION),8))

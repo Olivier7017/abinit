@@ -171,7 +171,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
 ! *************************************************************************
 
  call timab(192,1,tsec)
- 
+
  my_rank = xmpi_comm_rank(comm); nprocs = xmpi_comm_size(comm)
 
  ! Compute the maximum size of arrays intarr and dprarr
@@ -248,7 +248,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
      end if
    end if
 
- else if (kptopt == 0 .and. getkerange_filepath /= ABI_NOFILE) then 
+ else if (kptopt == 0 .and. getkerange_filepath /= ABI_NOFILE) then
    ! Initialize kpts from kerange_path file.
    ABI_MALLOC(krange2ibz, (nkpt))
    if (my_rank == master) then
@@ -355,7 +355,7 @@ subroutine inkpts(bravais,chksymbreak,fockdownsampling,iout,iscf,istwfk,jdtset,&
      'In this case, please check your input file.'
      MSG_ERROR(msg)
    end if
-      
+
    if (nkpt/=0) then
      ! The array kpt has the right dimension and we can generate the k-path
      call intagm(dprarr,intarr,jdtset,marr,3*nsegment+3,string(1:lenstr),'kptbounds',tread,'DPR')

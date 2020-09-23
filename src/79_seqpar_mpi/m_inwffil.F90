@@ -228,6 +228,7 @@ subroutine inwffil(ask_accurate,cg,dtset,ecut,ecut_eff,eigen,exchn2n3d,&
 ! *************************************************************************
 
  DBG_ENTER("COLL")
+
 !Keep track of total time spent in inwffil
  call timab(710,1,tsec)
  call timab(711,1,tsec)
@@ -369,7 +370,6 @@ subroutine inwffil(ask_accurate,cg,dtset,ecut,ecut_eff,eigen,exchn2n3d,&
      ABI_ALLOCATE(kg0,(3,mpw0*nkpt0))
      ABI_ALLOCATE(npwtot0,(nkpt0))
      message="tmpfil"
-
      call kpgio(ecut0,dtset%exchn2n3d,gmet0,istwfk0,kg0, &
 &     kptns0,nkpt0,nband0,nkpt0,'PERS',mpi_enreg0,&
 &     mpw0,npwarr0,npwtot0,nsppol0)

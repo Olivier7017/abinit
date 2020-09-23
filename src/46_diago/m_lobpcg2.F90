@@ -408,6 +408,7 @@ module m_lobpcg2
       call lobpcg_rayleighRitz(lobpcg,VAR_X,eigenvaluesN,ierr)
 
       do iline = 1, nline
+
         if ( ierr /= 0 ) then
           !MSG_COMMENT("Consider using more bands and nbdbuf if necessary.")
           ierr = 0

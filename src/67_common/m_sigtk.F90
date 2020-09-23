@@ -284,6 +284,7 @@ subroutine sigtk_kcalc_from_gaps(dtset, ebands, gaps, nkcalc, kcalc, bstart_ks, 
 
  call wrtout(std_out, " Including direct and fundamental KS gap in Sigma_nk")
  ABI_CHECK(maxval(gaps%ierr) == 0, "qprange 0 cannot be used because I cannot find the gap (gap_err !=0)")
+
  nsppol = ebands%nsppol
  val_indeces = get_valence_idx(ebands)
 
@@ -380,6 +381,7 @@ subroutine sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, nkcalc, kcalc, bs
  real(dp),allocatable :: sigma_wtk(:),sigma_kbz(:,:),tmp_kcalc(:,:)
 
 ! *************************************************************************
+
  my_rank = xmpi_comm_rank(comm) !; nprocs = xmpi_comm_size(comm)
  if (my_rank == master) then
    write(std_out, "(a)")" Selecting k-points and bands according to their position wrt band edges (sigma_erange)."
@@ -449,12 +451,14 @@ subroutine sigtk_kcalc_from_erange(dtset, cryst, ebands, gaps, nkcalc, kcalc, bs
           if (ee <= vmax .and. vmax - ee <= dtset%sigma_erange(1)) then
             ib_work(1, ii, spin) = min(ib_work(1, ii, spin), band)
             ib_work(2, ii, spin) = max(ib_work(2, ii, spin), band)
+            !write(std_out, *), "Adding valence band", band, " with ee [eV]: ", ee * Ha_eV
           end if
         end if
         if (dtset%sigma_erange(2) > zero) then
           if (ee >= cmin .and. ee - cmin <= dtset%sigma_erange(2)) then
             ib_work(1, ii, spin) = min(ib_work(1, ii, spin), band)
             ib_work(2, ii, spin) = max(ib_work(2, ii, spin), band)
+            !write(std_out, *)"Adding conduction band", band, " with ee [eV]: ", ee * Ha_eV
           end if
         end if
      end do
@@ -568,6 +572,7 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  integer :: fine_kptrlatt(3,3), band_block(2)
  integer,allocatable :: kshe_mask(:,:,:), krange2ibz(:)
  real(dp) :: params(4)
+
 ! *************************************************************************
 
  my_rank = xmpi_comm_rank(comm); nprocs = xmpi_comm_size(comm)
@@ -649,7 +654,7 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  ! Find k-points inside sigma_erange energy window.
  ! Set entry to 1 if (ikpt, spin) is inside the pocket (last index discerns between hole and electron pockets)
  ABI_ICALLOC(kshe_mask, (fine_ebands%nkpt, ebands%nsppol, 2))
- 
+
  do spin=1,ebands%nsppol
    ! Get CBM and VBM with some tolerance.
    if (gap_err == 0) then
@@ -754,6 +759,7 @@ subroutine sigtk_kpts_in_erange(dtset, cryst, ebands, psps, pawtab, prefix, comm
  call fine_hdr%free()
 
 end subroutine sigtk_kpts_in_erange
+!!***
 
 end module m_sigtk
 !!***
